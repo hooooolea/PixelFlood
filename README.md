@@ -1,5 +1,7 @@
 # 🌊 PixelFlood
 
+[中文](README_zh.md) · [日本語](README_ja.md)
+
 Edge flood-fill transparency for pixel art. Removes background colour without cutting into the sprite.
 
 ---
@@ -57,7 +59,3 @@ process("sprite.png", output_path="out.png", crop=True)
 ## License
 
 MIT
-
----
-
-[中文](README_zh.md) · [日本語](README_ja.md)
