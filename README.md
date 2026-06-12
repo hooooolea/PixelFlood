@@ -1,6 +1,8 @@
 # 🌊 PixelFlood
 
-[中文](README_zh.md) · [日本語](README_ja.md)
+[中文](README_zh.md) · [日本語](README_ja.md) · [한국어](README_ko.md) · [Français](README_fr.md) · [Español](README_es.md)
+
+---
 
 Edge flood-fill transparency for pixel art. Removes background colour without cutting into the sprite.
 
