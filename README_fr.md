@@ -2,17 +2,17 @@
 
 [English](README.md) · [中文](README_zh.md) · [日本語](README_ja.md) · [한국어](README_ko.md) · [Français](README_fr.md) · [Español](README_es.md)
 
-Outil de transparence par flood-fill depuis les bords pour le pixel art. Supprime la couleur de fond sans abîmer le sprite.
+Transparence par flood-fill de bord + extraction de sprites pour le pixel art.
 
 ---
 
 ## Problème
 
-Les outils classiques de "suppression du fond blanc" rendent transparents **tous** les pixels blancs. Si votre sprite contient des détails blancs (fourrure, yeux, vêtements), ils sont détruits.
+Les outils classiques de "suppression du fond blanc" rendent transparents **tous** les pixels blancs. Les détails blancs du sprite sont détruits.
 
 <p align="center"><img src="docs/comparison.png" width="780" alt="Comparaison"></p>
 
-PixelFlood ne remplit qu'à partir des **bords** de l'image. Le contour agit comme une barrière, préservant le blanc intérieur.
+PixelFlood ne remplit qu'à partir des **bords**. Le contour protège le blanc intérieur.
 
 ---
 
@@ -23,7 +23,7 @@ PixelFlood ne remplit qu'à partir des **bords** de l'image. Le contour agit com
 | Étape | Description |
 |-------|-------------|
 | Graines aux bords | Scan des 4 bords pour trouver les pixels de fond |
-| Flood-fill | BFS 4 directions, bloqué par les pixels de contour |
+| Flood-fill | BFS 4 directions, bloqué par le contour |
 | Résultat | Seul le fond connecté aux bords devient transparent |
 
 ---
@@ -40,12 +40,11 @@ pip install pixelflood
 # Fond blanc → transparent
 pixelflood sprite.png
 
-# Recadrage auto + aperçu 8x
-pixelflood sprite.png --crop --preview 8
-
-# Extraire les sprites individuels d'une planche
+# Extraire les sprites d'une planche
 pixelflood spritesheet.png --extract -o out/
 ```
+
+<p align="center"><img src="docs/extract.png" width="780" alt="Extraction"></p>
 
 ```python
 from PIL import Image
@@ -64,8 +63,8 @@ for i, sprite in enumerate(sprites):
 
 | Option | Défaut | Description |
 |--------|--------|-------------|
-| `-c, --color` | `#FFFFFF` | Couleur de fond (`#RRGGBB` ou `R,G,B`) |
-| `-t, --threshold` | `7` | Tolérance par canal (`0` = exact) |
+| `-c, --color` | `#FFFFFF` | Couleur de fond |
+| `-t, --threshold` | `7` | Tolérance par canal |
 | `--connectivity` | `4` | Directions du flood (`4` ou `8`) |
 | `--crop` | off | Recadrage automatique |
 | `--margin` | `0` | Marge de recadrage |

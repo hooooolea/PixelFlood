@@ -2,17 +2,17 @@
 
 [English](README.md) · [中文](README_zh.md) · [日本語](README_ja.md) · [한국어](README_ko.md) · [Français](README_fr.md) · [Español](README_es.md)
 
-Herramienta de transparencia por flood-fill de borde para pixel art. Elimina el color de fondo sin dañar el sprite.
+Transparencia por flood-fill de borde + extracción de sprites para pixel art.
 
 ---
 
 ## Problema
 
-Las herramientas tradicionales de "quitar fondo blanco" vuelven transparentes **todos** los píxeles blancos. Si tu sprite tiene detalles blancos (pelaje, ojos, ropa), se destruyen.
+Las herramientas tradicionales de "quitar fondo blanco" destruyen los detalles blancos del sprite (pelaje, ojos).
 
 <p align="center"><img src="docs/comparison.png" width="780" alt="Comparación"></p>
 
-PixelFlood solo inunda desde los **bordes** de la imagen. El contorno actúa como barrera, preservando el blanco interior.
+PixelFlood solo inunda desde los **bordes**. El contorno protege el blanco interior.
 
 ---
 
@@ -40,12 +40,11 @@ pip install pixelflood
 # Fondo blanco → transparente
 pixelflood sprite.png
 
-# Recorte auto + vista previa 8x
-pixelflood sprite.png --crop --preview 8
-
-# Extraer sprites individuales de una hoja
+# Extraer sprites de una hoja
 pixelflood spritesheet.png --extract -o out/
 ```
+
+<p align="center"><img src="docs/extract.png" width="780" alt="Extracción"></p>
 
 ```python
 from PIL import Image
@@ -64,8 +63,8 @@ for i, sprite in enumerate(sprites):
 
 | Flag | Por defecto | Descripción |
 |------|-------------|-------------|
-| `-c, --color` | `#FFFFFF` | Color de fondo (`#RRGGBB` o `R,G,B`) |
-| `-t, --threshold` | `7` | Tolerancia por canal (`0` = exacto) |
+| `-c, --color` | `#FFFFFF` | Color de fondo |
+| `-t, --threshold` | `7` | Tolerancia por canal |
 | `--connectivity` | `4` | Direcciones del flood (`4` u `8`) |
 | `--crop` | off | Recorte automático |
 | `--margin` | `0` | Margen de recorte |
