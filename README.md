@@ -2,7 +2,8 @@
 
 [中文](README_zh.md) · [日本語](README_ja.md) · [한국어](README_ko.md) · [Français](README_fr.md) · [Español](README_es.md)
 
----
+![Python](https://img.shields.io/badge/python-%3E%3D3.9-blue?style=flat)
+![License](https://img.shields.io/badge/license-MIT-green?style=flat)
 
 Edge flood-fill transparency for pixel art. Removes background colour without cutting into the sprite.
 
@@ -39,12 +40,21 @@ pip install pixelflood
 ## Usage
 
 ```bash
-# CLI
-pixelflood sprite.png                      # white bg to alpha
-pixelflood sprite.png --crop --preview 8   # autocrop + 8x preview
+# Quick start
+pixelflood sprite.png
 
-# Python
+# Auto-crop transparent borders + 8x preview
+pixelflood sprite.png --crop --preview 8
+
+# Custom background colour with tolerance
+pixelflood sprite.png -c "#00FF00" -t 10
+```
+
+```python
+# Python API
+from PIL import Image
 from pixelflood import flood, process
+
 result = flood(Image.open("sprite.png"))
 process("sprite.png", output_path="out.png", crop=True)
 ```
@@ -53,10 +63,12 @@ process("sprite.png", output_path="out.png", crop=True)
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `-c` | `#FFFFFF` | Background colour |
-| `-t` | `7` | Per-channel tolerance |
+| `-c, --color` | `#FFFFFF` | Background colour (`#RRGGBB` or `R,G,B`) |
+| `-t, --threshold` | `7` | Per-channel tolerance (`0` = exact match) |
+| `--connectivity` | `4` | Flood directions (`4` or `8`) |
 | `--crop` | off | Auto-crop transparent borders |
-| `--preview` | `0` | Save Nx scaled preview |
+| `--margin` | `0` | Extra pixels around crop |
+| `--preview` | `0` | Save Nx nearest-neighbour preview |
 
 ## License
 
