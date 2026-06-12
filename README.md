@@ -1,4 +1,4 @@
-# PixelFlood
+# 🌊 PixelFlood
 
 Edge flood-fill transparency for pixel art. Removes background colour without cutting into the sprite.
 
