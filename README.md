@@ -16,7 +16,7 @@ PixelFlood only floods from the **edges**. The outline acts as a barrier — int
 
 ## Algorithm
 
-<p align="center"><img src="docs/algorithm.png" width="700" alt="How it works"></p>
+<p align="center"><img src="docs/algorithm.png" alt="How it works"></p>
 
 | Step | Description |
 |------|-------------|
