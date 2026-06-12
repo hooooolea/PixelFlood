@@ -6,16 +6,11 @@ Removes background colour from images — but ONLY the pixels connected to the e
 
 ## The Problem
 
-```
-Before (naive white→transparent):    After (PixelFlood edge flood):
-  ⬜⬜⬜⬜⬜⬜⬜                         ░░░░░░░░
-  ⬜⬜⬜🐰🐰⬜⬜         兔子的               ░░🐰🐰░░
-  ⬜⬜🐰⬜⬜🐰⬜  ← 白色身体              ░░🐰⬜⬜🐰░  ← 身体白保留!
-  ⬜⬜🐰🐰🐰⬜⬜     被切掉了!             ░░🐰🐰🐰░░
-  ⬜⬜⬜⬜⬜⬜⬜                         ░░░░░░░░
-```
+Traditional tools set ALL white pixels to transparent. The rabbit's white body gets cut off with its background.
 
-Traditional tools set ALL white pixels to transparent. PixelFlood only floods from the edges.
+![Comparison](docs/comparison.png)
+
+PixelFlood only floods from the edges — interior white pixels are preserved because the outline blocks the flood.
 
 ## Install
 
