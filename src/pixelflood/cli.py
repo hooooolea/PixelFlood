@@ -62,6 +62,14 @@ def main() -> None:
         "--min-size", type=int, default=100,
         help="Minimum pixel count per extracted sprite (default: 100)"
     )
+    ap.add_argument(
+        "--smart", action="store_true",
+        help="Enable smart white-region removal during extraction"
+    )
+    ap.add_argument(
+        "--smart-aggressiveness", type=float, default=0.5,
+        help="Smart filter aggressiveness 0-1 (default: 0.5)"
+    )
     ap.add_argument("--version", action="version", version="pixelflood 0.1.0")
 
     args = ap.parse_args()
@@ -83,6 +91,8 @@ def main() -> None:
                 threshold=args.threshold,
                 connectivity=args.connectivity,
                 min_size=args.min_size,
+                smart=args.smart,
+                smart_bg_threshold=args.smart_aggressiveness,
             )
             stem = Path(args.input).stem
             out_dir = args.output or str(Path(args.input).parent)

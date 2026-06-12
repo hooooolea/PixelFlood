@@ -43,8 +43,8 @@ pip install pixelflood
 # Remove white background
 pixelflood sprite.png
 
-# Extract individual sprites from a sprite sheet
-pixelflood spritesheet.png --extract -o out/
+# Extract + smart filtering (removes trapped white between sprites)
+pixelflood spritesheet.png --extract --smart -o out/
 ```
 
 <p align="center"><img src="docs/extract.png" width="780" alt="Extract sprites"></p>
@@ -74,6 +74,8 @@ for i, sprite in enumerate(sprites):
 | `--preview` | `0` | Save Nx nearest-neighbour preview |
 | `--extract` | off | Extract individual sprites from sheet |
 | `--min-size` | `100` | Min pixels per extracted sprite |
+| `--smart` | off | Remove trapped white between sprites |
+| `--smart-aggressiveness` | `0.5` | Smart filter strength (0=gentle, 1=aggressive) |
 
 ## License
 

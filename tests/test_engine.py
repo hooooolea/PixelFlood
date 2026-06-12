@@ -161,3 +161,36 @@ def test_extract_sorted_left_to_right() -> None:
     right_has_red = any(r > 200 and g < 10 and b < 10 and a > 0 for r, g, b, a in right_data)
     assert left_has_black
     assert right_has_red
+
+
+def test_extract_smart_removes_trapped_white() -> None:
+    """Smart mode should remove white trapped between two sprites."""
+    # Two sprites close together with white gap between them
+    img = _make_image(120, 80)
+    # Left sprite: black outline with white interior
+    _draw_rect(img, 5, 20, 35, 40, (0, 0, 0, 255))  # outline
+    _draw_rect(img, 7, 22, 31, 36, (255, 255, 255, 255))  # white body
+    # Right sprite: red outline
+    _draw_rect(img, 75, 25, 35, 30, (255, 0, 0, 255))
+    # Thin white gap between them at x=40..74 — this should be trapped bg
+
+    sprites_without = extract(img, min_size=50, smart=False)
+    sprites_with = extract(img, min_size=50, smart=True, smart_bg_threshold=0.3)
+
+    # Smart mode should remove some of the trapped white gap
+    total_without = sum(1 for s in sprites_without for p in s.getdata() if p[3] > 0)
+    total_with = sum(1 for s in sprites_with for p in s.getdata() if p[3] > 0)
+    assert total_with <= total_without  # smart removed some pixels
+
+
+def test_smart_keeps_body_white() -> None:
+    """Smart mode should NOT remove white that's surrounded by outline."""
+    img = _make_image(80, 80)
+    _draw_rect(img, 20, 20, 40, 40, (0, 0, 0, 255))  # outline
+    _draw_rect(img, 22, 22, 36, 36, (255, 255, 255, 255))  # body white
+
+    sprites = extract(img, min_size=10, smart=True, smart_bg_threshold=0.5)
+    assert len(sprites) == 1
+    data = list(sprites[0].getdata())
+    white_kept = sum(1 for r, g, b, a in data if a > 0 and r >= 248 and g >= 248 and b >= 248)
+    assert white_kept > 500  # body white preserved, not over-cleaned

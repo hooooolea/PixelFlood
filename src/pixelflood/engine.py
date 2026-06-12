@@ -122,6 +122,8 @@ def extract(
     threshold: int = 7,
     connectivity: int = 4,
     min_size: int = 100,
+    smart: bool = False,
+    smart_bg_threshold: float = 0.6,
 ) -> List[Image.Image]:
     """
     Extract individual sprites from a sprite sheet.
@@ -130,12 +132,19 @@ def extract(
     connected components of the remaining pixels. Each component with
     at least `min_size` pixels is returned as a separate cropped image.
 
+    When `smart` is True, a secondary pass analyses white regions within
+    each extracted sprite and removes those that look like trapped
+    background (e.g. white gaps between adjacent sprites) rather than
+    actual sprite content.
+
     Args:
-        image:            PIL Image (RGBA or will be converted).
-        background_color: RGB tuple of the background colour.
-        threshold:        Per-channel tolerance for background matching.
-        connectivity:     4 or 8 for component connectivity.
-        min_size:         Minimum pixel count per sprite (filters noise).
+        image:              PIL Image (RGBA or will be converted).
+        background_color:   RGB tuple of the background colour.
+        threshold:          Per-channel tolerance for background matching.
+        connectivity:       4 or 8 for component connectivity.
+        min_size:           Minimum pixel count per sprite (filters noise).
+        smart:              Enable smart white-region removal.
+        smart_bg_threshold: Aggressiveness (0=keep all, 1=remove all white).
 
     Returns:
         List of PIL Images, one per extracted sprite (cropped to content).
@@ -223,15 +232,156 @@ def extract(
         y0, y1 = min(ys), max(ys)
         sw, sh = x1 - x0 + 1, y1 - y0 + 1
 
+        # Build sprite pixel map (local coords)
+        local_px: Dict[Tuple[int, int], Tuple[int, int, int, int]] = {}
+        for x, y in pixels:
+            local_px[(x - x0, y - y0)] = px[x, y]  # type: ignore[index]
+
+        # ── Smart clean: remove trapped white regions ──
+        if smart:
+            local_px = _smart_clean(
+                sw, sh, local_px, background_color, threshold,
+                smart_bg_threshold,
+            )
+
         sprite = Image.new("RGBA", (sw, sh), (0, 0, 0, 0))
         sp = sprite.load()
         assert sp is not None
-        for x, y in pixels:
-            sp[x - x0, y - y0] = px[x, y]  # type: ignore[index]
+        for (lx, ly), color in local_px.items():
+            sp[lx, ly] = color  # type: ignore[index]
 
         sprites.append(sprite)
 
     return sprites
+
+
+def _is_near_color_px(
+    px: Tuple[int, int, int, int],
+    target: Tuple[int, int, int],
+    threshold: int,
+) -> bool:
+    return all(abs(px[c] - target[c]) <= threshold for c in range(3))
+
+
+def _smart_clean(
+    w: int,
+    h: int,
+    pixels: Dict[Tuple[int, int], Tuple[int, int, int, int]],
+    bg_color: Tuple[int, int, int],
+    threshold: int,
+    aggressiveness: float,
+) -> Dict[Tuple[int, int], Tuple[int, int, int, int]]:
+    """
+    Analyse white regions within a sprite and remove trapped background.
+
+    Heuristics per white connected-component:
+      - edge_contact: fraction touching sprite bbox edges (high → bg)
+      - neighbor_bg:  fraction of adjacent pixels that are transparent (high → bg)
+      - size_score:   large region relative to sprite (high → bg)
+
+    Combined score > aggressiveness → region removed.
+    """
+    # Find white pixels
+    white_mask = [[False] * w for _ in range(h)]
+    white_list: List[Tuple[int, int]] = []
+    for (x, y), c in pixels.items():
+        if _is_near_color_px(c, bg_color, threshold):
+            white_mask[y][x] = True
+            white_list.append((x, y))
+
+    if not white_list:
+        return pixels
+
+    # Connected components of white pixels (8-way)
+    wlabel = [[0] * w for _ in range(h)]
+    parent: Dict[int, int] = {}
+    nl = 1
+
+    def ufind(c: int) -> int:
+        while parent.get(c, c) != c:
+            parent[c] = parent.get(parent[c], parent[c])
+            c = parent[c]
+        return c
+
+    for y in range(h):
+        for x in range(w):
+            if not white_mask[y][x]:
+                continue
+            nb: set[int] = set()
+            for dx, dy in [(-1, 0), (0, -1), (-1, -1), (-1, 1)]:
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < w and 0 <= ny < h and wlabel[ny][nx]:
+                    nb.add(wlabel[ny][nx])
+            if nb:
+                root = min(nb)
+                wlabel[y][x] = root
+                for n in nb:
+                    ra, rb = ufind(root), ufind(n)
+                    if ra != rb:
+                        parent[max(ra, rb)] = min(ra, rb)
+            else:
+                wlabel[y][x] = nl
+                parent[nl] = nl
+                nl += 1
+
+    for y in range(h):
+        for x in range(w):
+            if wlabel[y][x]:
+                wlabel[y][x] = ufind(wlabel[y][x])
+
+    # Group white regions
+    from collections import defaultdict
+    wgroups: Dict[int, List[Tuple[int, int]]] = defaultdict(list)
+    for y in range(h):
+        for x in range(w):
+            lbl = wlabel[y][x]
+            if lbl:
+                wgroups[lbl].append((x, y))
+
+    total_pixels = len(pixels)
+    to_remove: set[Tuple[int, int]] = set()
+
+    for lbl, wpix in wgroups.items():
+        size = len(wpix)
+        wxs = [p[0] for p in wpix]
+        wys = [p[1] for p in wpix]
+
+        # 1) Edge contact score
+        edge_count = sum(
+            1 for x, y in wpix
+            if x == 0 or x == w - 1 or y == 0 or y == h - 1
+        )
+        edge_score = edge_count / max(size, 1)
+
+        # 2) Neighbor score: fraction of adjacent non-white pixels
+        #    that are transparent (not outline)
+        transparent_neighbors = 0
+        solid_neighbors = 0
+        seen: set[Tuple[int, int]] = set()
+        for x, y in wpix:
+            for nx, ny in [(x+1,y),(x-1,y),(x,y+1),(x,y-1)]:
+                if 0 <= nx < w and 0 <= ny < h and (nx, ny) not in seen:
+                    seen.add((nx, ny))
+                    if (nx, ny) not in pixels:
+                        # Outside sprite entirely
+                        transparent_neighbors += 1
+                    elif not white_mask[ny][nx]:
+                        # Adjacent to non-white sprite content (outline)
+                        solid_neighbors += 1
+        neighbor_total = transparent_neighbors + solid_neighbors
+        neighbor_score = transparent_neighbors / max(neighbor_total, 1)
+
+        # 3) Size score
+        size_score = min(size / max(total_pixels, 1) * 5, 1.0)
+
+        # Combined: weighted towards edge and neighbor signals
+        score = 0.35 * edge_score + 0.40 * neighbor_score + 0.25 * size_score
+
+        if score > aggressiveness:
+            to_remove.update(wpix)
+
+    # Remove flagged pixels
+    return {k: v for k, v in pixels.items() if k not in to_remove}
 
 
 def process(
