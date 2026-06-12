@@ -40,8 +40,8 @@ pip install pixelflood
 # 白背景を透過
 pixelflood sprite.png
 
-# スプライトシートから個別スプライトを抽出
-pixelflood spritesheet.png --extract -o out/
+# スプライト抽出 + スマートクリーニング
+pixelflood spritesheet.png --extract --smart -o out/
 ```
 
 <p align="center"><img src="docs/extract.png" width="780" alt="抽出"></p>
@@ -53,8 +53,9 @@ from pixelflood import flood, extract
 # 単一スプライト：背景除去
 result = flood(Image.open("sprite.png"))
 
-# スプライトシート：個別に分割
-sprites = extract(Image.open("spritesheet.png"), min_size=500)
+# スプライトシート：分割 + スマート
+sprites = extract(Image.open("spritesheet.png"), min_size=500,
+                  smart=True, smart_bg_threshold=0.5)
 for i, sprite in enumerate(sprites):
     sprite.save(f"sprite-{i+1}.png")
 ```
@@ -65,12 +66,12 @@ for i, sprite in enumerate(sprites):
 |--------|-----------|------|
 | `-c, --color` | `#FFFFFF` | 背景色 |
 | `-t, --threshold` | `7` | チャンネル毎の許容値 |
-| `--connectivity` | `4` | フラッド方向数 (`4` または `8`) |
 | `--crop` | オフ | 透過部分を自動トリミング |
-| `--margin` | `0` | トリミング余白 |
 | `--preview` | `0` | N倍プレビュー保存 |
 | `--extract` | オフ | スプライトシート分割 |
 | `--min-size` | `100` | 抽出最小ピクセル数 |
+| `--smart` | オフ | 閉じ込められた白を除去 |
+| `--smart-aggressiveness` | `0.5` | フィルタ強度 (0=穏やか, 1=強め) |
 
 ## License
 

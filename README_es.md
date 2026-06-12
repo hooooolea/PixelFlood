@@ -40,8 +40,8 @@ pip install pixelflood
 # Fondo blanco → transparente
 pixelflood sprite.png
 
-# Extraer sprites de una hoja
-pixelflood spritesheet.png --extract -o out/
+# Extracción + limpieza inteligente
+pixelflood spritesheet.png --extract --smart -o out/
 ```
 
 <p align="center"><img src="docs/extract.png" width="780" alt="Extracción"></p>
@@ -53,8 +53,9 @@ from pixelflood import flood, extract
 # Sprite único: quitar fondo
 result = flood(Image.open("sprite.png"))
 
-# Hoja de sprites: separar cada sprite
-sprites = extract(Image.open("spritesheet.png"), min_size=500)
+# Hoja de sprites: separar + smart
+sprites = extract(Image.open("spritesheet.png"), min_size=500,
+                  smart=True, smart_bg_threshold=0.5)
 for i, sprite in enumerate(sprites):
     sprite.save(f"sprite-{i+1}.png")
 ```
@@ -65,12 +66,12 @@ for i, sprite in enumerate(sprites):
 |------|-------------|-------------|
 | `-c, --color` | `#FFFFFF` | Color de fondo |
 | `-t, --threshold` | `7` | Tolerancia por canal |
-| `--connectivity` | `4` | Direcciones del flood (`4` u `8`) |
 | `--crop` | off | Recorte automático |
-| `--margin` | `0` | Margen de recorte |
 | `--preview` | `0` | Guardar vista previa Nx |
 | `--extract` | off | Extraer sprites de una hoja |
 | `--min-size` | `100` | Píxeles mínimos por sprite |
+| `--smart` | off | Eliminar blanco atrapado |
+| `--smart-aggressiveness` | `0.5` | Fuerza del filtro (0=suave, 1=agresivo) |
 
 ## License
 

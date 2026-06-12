@@ -40,8 +40,8 @@ pip install pixelflood
 # 흰색 배경을 투명하게
 pixelflood sprite.png
 
-# 스프라이트 시트에서 개별 스프라이트 추출
-pixelflood spritesheet.png --extract -o out/
+# 스프라이트 추출 + 스마트 클리닝
+pixelflood spritesheet.png --extract --smart -o out/
 ```
 
 <p align="center"><img src="docs/extract.png" width="780" alt="추출"></p>
@@ -53,8 +53,9 @@ from pixelflood import flood, extract
 # 단일 스프라이트: 배경 제거
 result = flood(Image.open("sprite.png"))
 
-# 스프라이트 시트: 개별 분리
-sprites = extract(Image.open("spritesheet.png"), min_size=500)
+# 스프라이트 시트: 분할 + 스마트
+sprites = extract(Image.open("spritesheet.png"), min_size=500,
+                  smart=True, smart_bg_threshold=0.5)
 for i, sprite in enumerate(sprites):
     sprite.save(f"sprite-{i+1}.png")
 ```
@@ -65,12 +66,12 @@ for i, sprite in enumerate(sprites):
 |--------|-------|------|
 | `-c, --color` | `#FFFFFF` | 배경색 |
 | `-t, --threshold` | `7` | 채널당 허용 오차 |
-| `--connectivity` | `4` | 플러드 방향 수 (`4` 또는 `8`) |
 | `--crop` | 꺼짐 | 투명 테두리 자동 자르기 |
-| `--margin` | `0` | 자르기 여백 |
 | `--preview` | `0` | N배 프리뷰 저장 |
 | `--extract` | 꺼짐 | 스프라이트 시트 분할 |
 | `--min-size` | `100` | 추출 최소 픽셀 수 |
+| `--smart` | 꺼짐 | 갇힌 흰색 제거 |
+| `--smart-aggressiveness` | `0.5` | 필터 강도 (0=약하게, 1=강하게) |
 
 ## License
 

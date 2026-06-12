@@ -2,7 +2,7 @@
 
 [English](README.md) · [中文](README_zh.md) · [日本語](README_ja.md) · [한국어](README_ko.md) · [Français](README_fr.md) · [Español](README_es.md)
 
-面向像素画的边缘洪泛透明填充工具。去除背景色 + 拆分精灵表。
+面向像素画的边缘洪泛透明填充 + 精灵表拆分工具。
 
 ---
 
@@ -40,8 +40,8 @@ pip install pixelflood
 # 去白底
 pixelflood sprite.png
 
-# 从精灵表拆分独立精灵
-pixelflood spritesheet.png --extract -o out/
+# 拆分精灵 + 智能封闭白清理
+pixelflood spritesheet.png --extract --smart -o out/
 ```
 
 <p align="center"><img src="docs/extract.png" width="780" alt="提取精灵"></p>
@@ -53,8 +53,9 @@ from pixelflood import flood, extract
 # 单精灵：去背景
 result = flood(Image.open("sprite.png"))
 
-# 精灵表：拆分每个精灵
-sprites = extract(Image.open("spritesheet.png"), min_size=500)
+# 精灵表：拆分 + 智能清理
+sprites = extract(Image.open("spritesheet.png"), min_size=500,
+                  smart=True, smart_bg_threshold=0.5)
 for i, sprite in enumerate(sprites):
     sprite.save(f"sprite-{i+1}.png")
 ```
@@ -65,12 +66,12 @@ for i, sprite in enumerate(sprites):
 |------|--------|------|
 | `-c, --color` | `#FFFFFF` | 背景色 |
 | `-t, --threshold` | `7` | 每通道容差 |
-| `--connectivity` | `4` | 洪泛方向 (`4` 或 `8`) |
 | `--crop` | 关闭 | 自动裁剪透明边 |
-| `--margin` | `0` | 裁剪额外边距 |
 | `--preview` | `0` | 保存 N 倍预览图 |
 | `--extract` | 关闭 | 精灵表拆分 |
 | `--min-size` | `100` | 每个精灵最少像素数 |
+| `--smart` | 关闭 | 智能清理精灵间封闭白 |
+| `--smart-aggressiveness` | `0.5` | 清理强度 (0=温和, 1=激进) |
 
 ## License
 

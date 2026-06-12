@@ -5,7 +5,7 @@
 ![Python](https://img.shields.io/badge/python-%3E%3D3.9-blue?style=flat)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat)
 
-Edge flood-fill transparency for pixel art. Removes background colour without cutting into the sprite.
+Edge flood-fill transparency + sprite sheet extraction for pixel art.
 
 ---
 
@@ -43,7 +43,7 @@ pip install pixelflood
 # Remove white background
 pixelflood sprite.png
 
-# Extract + smart filtering (removes trapped white between sprites)
+# Extract sprites + smart trapped-white removal
 pixelflood spritesheet.png --extract --smart -o out/
 ```
 
@@ -57,7 +57,8 @@ from pixelflood import flood, extract
 result = flood(Image.open("sprite.png"))
 
 # Sprite sheet: extract individual sprites
-sprites = extract(Image.open("spritesheet.png"), min_size=500)
+sprites = extract(Image.open("spritesheet.png"), min_size=500,
+                  smart=True, smart_bg_threshold=0.5)
 for i, sprite in enumerate(sprites):
     sprite.save(f"sprite-{i+1}.png")
 ```
@@ -68,9 +69,7 @@ for i, sprite in enumerate(sprites):
 |------|---------|-------------|
 | `-c, --color` | `#FFFFFF` | Background colour (`#RRGGBB` or `R,G,B`) |
 | `-t, --threshold` | `7` | Per-channel tolerance (`0` = exact match) |
-| `--connectivity` | `4` | Flood directions (`4` or `8`) |
 | `--crop` | off | Auto-crop transparent borders |
-| `--margin` | `0` | Extra pixels around crop |
 | `--preview` | `0` | Save Nx nearest-neighbour preview |
 | `--extract` | off | Extract individual sprites from sheet |
 | `--min-size` | `100` | Min pixels per extracted sprite |
