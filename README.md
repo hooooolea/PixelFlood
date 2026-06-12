@@ -40,23 +40,27 @@ pip install pixelflood
 ## Usage
 
 ```bash
-# Quick start
+# Remove white background
 pixelflood sprite.png
 
-# Auto-crop transparent borders + 8x preview
+# Auto-crop + 8x preview
 pixelflood sprite.png --crop --preview 8
 
-# Custom background colour with tolerance
-pixelflood sprite.png -c "#00FF00" -t 10
+# Extract individual sprites from a sprite sheet
+pixelflood spritesheet.png --extract -o out/
 ```
 
 ```python
-# Python API
 from PIL import Image
-from pixelflood import flood, process
+from pixelflood import flood, extract
 
+# Single sprite: remove background
 result = flood(Image.open("sprite.png"))
-process("sprite.png", output_path="out.png", crop=True)
+
+# Sprite sheet: extract individual sprites
+sprites = extract(Image.open("spritesheet.png"), min_size=500)
+for i, sprite in enumerate(sprites):
+    sprite.save(f"sprite-{i+1}.png")
 ```
 
 ## Options
@@ -69,6 +73,8 @@ process("sprite.png", output_path="out.png", crop=True)
 | `--crop` | off | Auto-crop transparent borders |
 | `--margin` | `0` | Extra pixels around crop |
 | `--preview` | `0` | Save Nx nearest-neighbour preview |
+| `--extract` | off | Extract individual sprites from sheet |
+| `--min-size` | `100` | Min pixels per extracted sprite |
 
 ## License
 

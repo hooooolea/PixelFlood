@@ -3,7 +3,7 @@
 import pytest
 from PIL import Image
 
-from pixelflood import flood, auto_crop
+from pixelflood import auto_crop, extract, flood
 
 
 def _make_image(w: int, h: int,
@@ -97,3 +97,67 @@ def test_non_white_background() -> None:
     assert px is not None
     assert px[0, 0][3] == 0    # green bg → transparent  # type: ignore[index]
     assert px[15, 15] == (255, 0, 0, 255)  # red rect → kept  # type: ignore[index]
+
+
+# ── extract() tests ──
+
+def test_extract_single_sprite() -> None:
+    """A single sprite on white bg should extract as one image."""
+    img = _make_image(80, 80)
+    _draw_rect(img, 30, 30, 20, 20, (0, 0, 0, 255))
+    sprites = extract(img, min_size=10)
+    assert len(sprites) == 1
+    assert sprites[0].width <= 25 and sprites[0].height <= 25
+
+
+def test_extract_multiple_sprites() -> None:
+    """Two separated shapes should extract as two sprites."""
+    img = _make_image(120, 80)
+    # Left shape
+    _draw_rect(img, 10, 20, 30, 40, (0, 0, 0, 255))
+    # Right shape
+    _draw_rect(img, 80, 30, 20, 20, (255, 0, 0, 255))
+    sprites = extract(img, min_size=10)
+    assert len(sprites) == 2
+
+
+def test_extract_filters_noise() -> None:
+    """min_size should filter out tiny pixel noise."""
+    img = _make_image(60, 60)
+    _draw_rect(img, 20, 20, 20, 20, (0, 0, 0, 255))
+    # 1-pixel noise
+    img.putpixel((5, 5), (255, 0, 0, 255))
+    img.putpixel((50, 50), (0, 255, 0, 255))
+    sprites = extract(img, min_size=50)
+    assert len(sprites) == 1
+
+
+def test_extract_preserves_white_body() -> None:
+    """White pixels inside a sprite outline should be kept (not background)."""
+    img = _make_image(80, 80)
+    # Black outline ring
+    _draw_rect(img, 20, 20, 40, 40, (0, 0, 0, 255))
+    # White interior
+    _draw_rect(img, 22, 22, 36, 36, (255, 255, 255, 255))
+    sprites = extract(img, min_size=10)
+    assert len(sprites) == 1
+    # Sprite should contain white interior pixels
+    data = sprites[0].getdata()
+    white_px = sum(1 for r, g, b, a in data if a > 0 and r >= 248 and g >= 248 and b >= 248)
+    assert white_px > 100  # white body preserved
+
+
+def test_extract_sorted_left_to_right() -> None:
+    """Sprites should be sorted left-to-right."""
+    img = _make_image(200, 80)
+    _draw_rect(img, 10, 20, 20, 40, (0, 0, 0, 255))    # left (black)
+    _draw_rect(img, 170, 20, 20, 40, (255, 0, 0, 255))  # right (red)
+    sprites = extract(img, min_size=10)
+    assert len(sprites) == 2
+    # Black sprite first, red second
+    left_data = sprites[0].getdata()
+    right_data = sprites[1].getdata()
+    left_has_black = any(r < 10 and g < 10 and b < 10 and a > 0 for r, g, b, a in left_data)
+    right_has_red = any(r > 200 and g < 10 and b < 10 and a > 0 for r, g, b, a in right_data)
+    assert left_has_black
+    assert right_has_red
