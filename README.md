@@ -8,7 +8,7 @@ Edge flood-fill transparency for pixel art. Removes background colour without cu
 
 Traditional "remove white background" destroys white sprite details (fur, eyes, clothing).
 
-<p align="center"><img src="docs/comparison.png" width="692" alt="Before vs After"></p>
+<p align="center"><img src="docs/comparison.png" width="780" alt="Before vs After"></p>
 
 PixelFlood only floods from the **edges**. The outline acts as a barrier — interior white is preserved.
 
@@ -16,7 +16,7 @@ PixelFlood only floods from the **edges**. The outline acts as a barrier — int
 
 ## Algorithm
 
-<p align="center"><img src="docs/algorithm.png" width="800" alt="How it works"></p>
+<p align="center"><img src="docs/algorithm.png" width="700" alt="How it works"></p>
 
 | Step | Description |
 |------|-------------|
