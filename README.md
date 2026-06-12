@@ -2,70 +2,70 @@
 
 **Edge flood-fill transparency for pixel art.**
 
-Removes background colour from images — but ONLY the pixels connected to the edges. Interior details of the same colour (like white fur on a white background) are preserved because the sprite's outline blocks the flood.
+Remove background colour from sprites — without cutting into the sprite itself.
 
-## The Problem
+---
 
-Traditional tools set ALL white pixels to transparent. The rabbit's white body gets cut off with its background.
+### The Problem
 
-![Comparison](docs/comparison.png)
+Traditional "remove white background" tools set **all** white pixels to transparent.
+If your sprite has white details (fur, eyes, clothing), they get destroyed.
 
-PixelFlood only floods from the edges — interior white pixels are preserved because the outline blocks the flood.
+<p align="center"><img src="docs/comparison.png" width="356" alt="Comparison"></p>
 
-## Install
+PixelFlood only floods from the **edges**. Interior white pixels — surrounded by the sprite's outline — are preserved.
+
+---
+
+### How It Works
+
+<p align="center"><img src="docs/algorithm.png" width="800" alt="Algorithm"></p>
+
+| Step | Description |
+|------|-------------|
+| ① Edge seeds | Scan image edges for background-coloured pixels |
+| ② Flood fill | BFS from seeds — outline pixels block the flood |
+| ③ Result | Only edge-connected background is removed |
+
+---
+
+### Install
 
 ```bash
 pip install pixelflood
 ```
 
-## Usage
-
 ### CLI
 
 ```bash
-# Basic: white background → transparent
-pixelflood sprite.png
-
-# With auto-crop + 8x preview
-pixelflood sprite.png --crop --preview 8
-
-# Custom background colour + tolerance
-pixelflood sprite.png -c "#00FF00" -t 10
-
-# Full options
-pixelflood input.png -o output.png -c 255,255,255 -t 7 --connectivity 4 --crop --margin 2
+pixelflood sprite.png                      # white bg → alpha
+pixelflood sprite.png --crop --preview 8   # autocrop + 8x preview
+pixelflood sprite.png -c "#00FF00" -t 10   # custom colour + tolerance
 ```
 
 ### Python API
 
 ```python
-from pixelflood import flood, auto_crop
+from pixelflood import flood
 
-# Core function — works with any PIL Image
-from PIL import Image
-img = Image.open("sprite.png")
-result = flood(img, background_color=(255, 255, 255), threshold=7)
+result = flood(Image.open("sprite.png"), background_color=(255, 255, 255))
 
-# Or one-shot convenience
+# Or one-shot with autocrop
 from pixelflood import process
 process("sprite.png", output_path="out.png", crop=True)
 ```
 
-## Algorithm
-
-![Algorithm](docs/algorithm.png)
-
-## Options
+### Options
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `-c, --color` | `#FFFFFF` | Background colour to flood |
-| `-t, --threshold` | `7` | Per-channel tolerance (0 = exact) |
-| `--connectivity` | `4` | `4` or `8` flood directions |
+| `-c, --color` | `#FFFFFF` | Background colour |
+| `-t, --threshold` | `7` | Per-channel tolerance |
+| `--connectivity` | `4` | Flood directions (`4` or `8`) |
 | `--crop` | off | Auto-crop transparent borders |
 | `--margin` | `0` | Extra px around crop |
 | `--preview` | `0` | Save N× nearest-neighbour preview |
 
-## License
+### License
 
 MIT
