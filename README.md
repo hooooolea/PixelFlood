@@ -53,24 +53,7 @@ process("sprite.png", output_path="out.png", crop=True)
 
 ## Algorithm
 
-```
-1. Scan all 4 image edges → find background-coloured pixels
-2. BFS flood-fill from those seeds (4-directional)
-3. Set alpha=0 for all flooded pixels
-4. Interior pixels of the same colour are NOT flooded —
-   the sprite outline acts as a flood barrier
-```
-
-```
-┌─────────────────────────┐
-│ B B B B B B B B B B B  │  B = Background (flooded → transparent)
-│ B B B . . . . B B B B  │  . = Outline (blocks flood)
-│ B B . W W W . B B B B  │  W = Interior white (PRESERVED!)
-│ B B . W W W . B B B B  │
-│ B B B . . . . B B B B  │
-│ B B B B B B B B B B B  │
-└─────────────────────────┘
-```
+![Algorithm](docs/algorithm.png)
 
 ## Options
 
