@@ -43,12 +43,11 @@ pip install pixelflood
 # Remove white background
 pixelflood sprite.png
 
-# Auto-crop + 8x preview
-pixelflood sprite.png --crop --preview 8
-
 # Extract individual sprites from a sprite sheet
 pixelflood spritesheet.png --extract -o out/
 ```
+
+<p align="center"><img src="docs/extract.png" width="780" alt="Extract sprites"></p>
 
 ```python
 from PIL import Image
