@@ -2,13 +2,13 @@
 
 [English](README.md) · [中文](README_zh.md) · [日本語](README_ja.md) · [한국어](README_ko.md) · [Français](README_fr.md) · [Español](README_es.md)
 
-ドット絵のためのエッジフラッドフィル透過 + スプライトシート分割ツール。
+ドット絵のためのエッジフラッドフィル透過 + パーツシート分割ツール。
 
 ---
 
 ## 問題
 
-従来の「白背景除去」は**すべての**白ピクセルを透過します。スプライトの白い部分（毛、目）も消えてしまいます。
+従来の「白背景除去」は**すべての**白ピクセルを透過します。パーツの白い部分（毛、目）も消えてしまいます。
 
 <p align="center"><img src="docs/comparison.png" width="780" alt="比較"></p>
 
@@ -40,7 +40,7 @@ pip install pixelflood
 # 白背景を透過
 pixelflood sprite.png
 
-# スプライト抽出 + スマートクリーニング
+# パーツ抽出 + 閉じ込め白判定クリーニング
 pixelflood spritesheet.png --extract --smart -o out/
 ```
 
@@ -50,10 +50,10 @@ pixelflood spritesheet.png --extract --smart -o out/
 from PIL import Image
 from pixelflood import flood, extract
 
-# 単一スプライト：背景除去
+# 単一パーツ：背景除去
 result = flood(Image.open("sprite.png"))
 
-# スプライトシート：分割 + スマート
+# パーツシート：分割 + 判定クリーニング
 sprites = extract(Image.open("spritesheet.png"), min_size=500,
                   smart=True, smart_bg_threshold=0.5)
 for i, sprite in enumerate(sprites):
@@ -68,7 +68,7 @@ for i, sprite in enumerate(sprites):
 | `-t, --threshold` | `7` | チャンネル毎の許容値 |
 | `--crop` | オフ | 透過部分を自動トリミング |
 | `--preview` | `0` | N倍プレビュー保存 |
-| `--extract` | オフ | スプライトシート分割 |
+| `--extract` | オフ | パーツシート分割 |
 | `--min-size` | `100` | 抽出最小ピクセル数 |
 | `--smart` | オフ | 閉じ込められた白を除去 |
 | `--smart-aggressiveness` | `0.5` | フィルタ強度 (0=穏やか, 1=強め) |

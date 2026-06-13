@@ -2,13 +2,13 @@
 
 [English](README.md) · [中文](README_zh.md) · [日本語](README_ja.md) · [한국어](README_ko.md) · [Français](README_fr.md) · [Español](README_es.md)
 
-Transparencia por flood-fill de borde + extracción de sprites para pixel art.
+Transparencia por flood-fill de borde + extracción de elementos para pixel art.
 
 ---
 
 ## Problema
 
-Las herramientas tradicionales de "quitar fondo blanco" destruyen los detalles blancos del sprite (pelaje, ojos).
+Las herramientas tradicionales de "quitar fondo blanco" destruyen los detalles blancos del elemento (pelaje, ojos).
 
 <p align="center"><img src="docs/comparison.png" width="780" alt="Comparación"></p>
 
@@ -40,7 +40,7 @@ pip install pixelflood
 # Fondo blanco → transparente
 pixelflood sprite.png
 
-# Extracción + limpieza inteligente
+# Extracción + limpieza de blanco atrapado
 pixelflood spritesheet.png --extract --smart -o out/
 ```
 
@@ -50,10 +50,10 @@ pixelflood spritesheet.png --extract --smart -o out/
 from PIL import Image
 from pixelflood import flood, extract
 
-# Sprite único: quitar fondo
+# Elemento único: quitar fondo
 result = flood(Image.open("sprite.png"))
 
-# Hoja de sprites: separar + smart
+# Hoja de elementos: separar + limpieza
 sprites = extract(Image.open("spritesheet.png"), min_size=500,
                   smart=True, smart_bg_threshold=0.5)
 for i, sprite in enumerate(sprites):
@@ -68,8 +68,8 @@ for i, sprite in enumerate(sprites):
 | `-t, --threshold` | `7` | Tolerancia por canal |
 | `--crop` | off | Recorte automático |
 | `--preview` | `0` | Guardar vista previa Nx |
-| `--extract` | off | Extraer sprites de una hoja |
-| `--min-size` | `100` | Píxeles mínimos por sprite |
+| `--extract` | off | Extraer elementos de una hoja |
+| `--min-size` | `100` | Píxeles mínimos por elemento |
 | `--smart` | off | Eliminar blanco atrapado |
 | `--smart-aggressiveness` | `0.5` | Fuerza del filtro (0=suave, 1=agresivo) |
 

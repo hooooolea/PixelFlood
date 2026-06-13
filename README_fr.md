@@ -2,13 +2,13 @@
 
 [English](README.md) · [中文](README_zh.md) · [日本語](README_ja.md) · [한국어](README_ko.md) · [Français](README_fr.md) · [Español](README_es.md)
 
-Transparence par flood-fill de bord + extraction de sprites pour le pixel art.
+Transparence par flood-fill de bord + extraction d'éléments pour le pixel art.
 
 ---
 
 ## Problème
 
-Les outils classiques de "suppression du fond blanc" rendent transparents **tous** les pixels blancs. Les détails blancs du sprite sont détruits.
+Les outils classiques de "suppression du fond blanc" rendent transparents **tous** les pixels blancs. Les détails blancs de l'élément sont détruits.
 
 <p align="center"><img src="docs/comparison.png" width="780" alt="Comparaison"></p>
 
@@ -40,7 +40,7 @@ pip install pixelflood
 # Fond blanc → transparent
 pixelflood sprite.png
 
-# Extraction + nettoyage intelligent
+# Extraction + nettoyage du blanc piégé
 pixelflood spritesheet.png --extract --smart -o out/
 ```
 
@@ -50,10 +50,10 @@ pixelflood spritesheet.png --extract --smart -o out/
 from PIL import Image
 from pixelflood import flood, extract
 
-# Sprite unique : supprimer le fond
+# Élément unique : supprimer le fond
 result = flood(Image.open("sprite.png"))
 
-# Planche de sprites : extraire + smart
+# Planche d'éléments : extraire + nettoyage
 sprites = extract(Image.open("spritesheet.png"), min_size=500,
                   smart=True, smart_bg_threshold=0.5)
 for i, sprite in enumerate(sprites):
@@ -68,8 +68,8 @@ for i, sprite in enumerate(sprites):
 | `-t, --threshold` | `7` | Tolérance par canal |
 | `--crop` | off | Recadrage automatique |
 | `--preview` | `0` | Aperçu Nx |
-| `--extract` | off | Extraire les sprites d'une planche |
-| `--min-size` | `100` | Taille minimum par sprite |
+| `--extract` | off | Extraire les éléments d'une planche |
+| `--min-size` | `100` | Taille minimum par élément |
 | `--smart` | off | Supprimer le blanc piégé |
 | `--smart-aggressiveness` | `0.5` | Force du filtre (0=doux, 1=agressif) |
 

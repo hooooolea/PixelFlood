@@ -2,13 +2,13 @@
 
 [English](README.md) · [中文](README_zh.md) · [日本語](README_ja.md) · [한국어](README_ko.md) · [Français](README_fr.md) · [Español](README_es.md)
 
-픽셀 아트를 위한 엣지 플러드 필 투명화 + 스프라이트 시트 분할 도구.
+픽셀 아트를 위한 엣지 플러드 필 투명화 + 엘리먼트 시트 분할 도구.
 
 ---
 
 ## 문제점
 
-기존의 "흰색 배경 제거"는 **모든** 흰색 픽셀을 투명하게 만듭니다. 스프라이트의 흰색 디테일도 함께 사라집니다.
+기존의 "흰색 배경 제거"는 **모든** 흰색 픽셀을 투명하게 만듭니다. 엘리먼트의 흰색 디테일도 함께 사라집니다.
 
 <p align="center"><img src="docs/comparison.png" width="780" alt="비교"></p>
 
@@ -40,7 +40,7 @@ pip install pixelflood
 # 흰색 배경을 투명하게
 pixelflood sprite.png
 
-# 스프라이트 추출 + 스마트 클리닝
+# 엘리먼트 추출 + 갇힌 흰색 판별 클리닝
 pixelflood spritesheet.png --extract --smart -o out/
 ```
 
@@ -50,10 +50,10 @@ pixelflood spritesheet.png --extract --smart -o out/
 from PIL import Image
 from pixelflood import flood, extract
 
-# 단일 스프라이트: 배경 제거
+# 단일 엘리먼트: 배경 제거
 result = flood(Image.open("sprite.png"))
 
-# 스프라이트 시트: 분할 + 스마트
+# 엘리먼트 시트: 분할 + 판별 클리닝
 sprites = extract(Image.open("spritesheet.png"), min_size=500,
                   smart=True, smart_bg_threshold=0.5)
 for i, sprite in enumerate(sprites):
@@ -68,7 +68,7 @@ for i, sprite in enumerate(sprites):
 | `-t, --threshold` | `7` | 채널당 허용 오차 |
 | `--crop` | 꺼짐 | 투명 테두리 자동 자르기 |
 | `--preview` | `0` | N배 프리뷰 저장 |
-| `--extract` | 꺼짐 | 스프라이트 시트 분할 |
+| `--extract` | 꺼짐 | 엘리먼트 시트 분할 |
 | `--min-size` | `100` | 추출 최소 픽셀 수 |
 | `--smart` | 꺼짐 | 갇힌 흰색 제거 |
 | `--smart-aggressiveness` | `0.5` | 필터 강도 (0=약하게, 1=강하게) |

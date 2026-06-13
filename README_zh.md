@@ -2,13 +2,13 @@
 
 [English](README.md) · [中文](README_zh.md) · [日本語](README_ja.md) · [한국어](README_ko.md) · [Français](README_fr.md) · [Español](README_es.md)
 
-面向像素画的边缘洪泛透明填充 + 精灵表拆分工具。
+面向像素画的边缘洪泛透明填充 + 元件表拆分工具。
 
 ---
 
 ## 问题
 
-传统的"去白底"会把**所有**白色像素变透明。精灵本身的白色细节（毛发、眼睛）会被误删。
+传统的"去白底"会把**所有**白色像素变透明。元件本身的白色细节（毛发、眼睛）会被误删。
 
 <p align="center"><img src="docs/comparison.png" width="780" alt="对比"></p>
 
@@ -40,20 +40,20 @@ pip install pixelflood
 # 去白底
 pixelflood sprite.png
 
-# 拆分精灵 + 智能封闭白清理
+# 拆分元件 + 封闭白判断清理
 pixelflood spritesheet.png --extract --smart -o out/
 ```
 
-<p align="center"><img src="docs/extract.png" width="780" alt="提取精灵"></p>
+<p align="center"><img src="docs/extract.png" width="780" alt="提取元件"></p>
 
 ```python
 from PIL import Image
 from pixelflood import flood, extract
 
-# 单精灵：去背景
+# 单元件：去背景
 result = flood(Image.open("sprite.png"))
 
-# 精灵表：拆分 + 智能清理
+# 元件表：拆分 + 封闭白判断清理
 sprites = extract(Image.open("spritesheet.png"), min_size=500,
                   smart=True, smart_bg_threshold=0.5)
 for i, sprite in enumerate(sprites):
@@ -68,9 +68,9 @@ for i, sprite in enumerate(sprites):
 | `-t, --threshold` | `7` | 每通道容差 |
 | `--crop` | 关闭 | 自动裁剪透明边 |
 | `--preview` | `0` | 保存 N 倍预览图 |
-| `--extract` | 关闭 | 精灵表拆分 |
-| `--min-size` | `100` | 每个精灵最少像素数 |
-| `--smart` | 关闭 | 智能清理精灵间封闭白 |
+| `--extract` | 关闭 | 元件表拆分 |
+| `--min-size` | `100` | 每个元件最少像素数 |
+| `--smart` | 关闭 | 判断清理元件间封闭白 |
 | `--smart-aggressiveness` | `0.5` | 清理强度 (0=温和, 1=激进) |
 
 ## License
